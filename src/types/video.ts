@@ -31,7 +31,9 @@ export interface AnalyzedVideo {
 
     // --- CONTENT DETAILS ---
     publish_date: string;
-    duration_minutes: number;
+    duration_minutes: number; // Legacy: decimal minutes
+    duration_seconds: number; // Total seconds
+    duration_formatted: string; // Human-readable (MM:SS or HH:MM:SS)
     made_for_kids: boolean;
     default_language: string;
     default_audio_language: string;
@@ -40,7 +42,8 @@ export interface AnalyzedVideo {
     tags: string[];
     description: string;
     category_id: string;
-    topic_categories: string[];
+    topic_categories: string[]; // Raw Wikipedia URLs from API
+    topic_categories_clean: string; // Human-readable names (e.g., "Technology | Gaming")
 
     // --- VISUALS ---
     thumbnails: VideoThumbnails;

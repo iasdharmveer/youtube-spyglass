@@ -108,8 +108,8 @@ async function handleYouTubeResponse<T>(response: Response): Promise<T> {
     return data;
 }
 
-// Parse ISO 8601 duration (PT1H2M3S) to minutes
-export function parseDuration(isoDuration: string): number {
+// Parse ISO 8601 duration (PT1H2M3S) to seconds
+export function parseDurationSeconds(isoDuration: string): number {
     if (!isoDuration) return 0;
 
     const match = isoDuration.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
@@ -119,7 +119,38 @@ export function parseDuration(isoDuration: string): number {
     const minutes = parseInt(match[2] || "0", 10);
     const seconds = parseInt(match[3] || "0", 10);
 
-    return hours * 60 + minutes + seconds / 60;
+    return hours * 3600 + minutes * 60 + seconds;
+}
+
+// Format seconds to human-readable duration (MM:SS or HH:MM:SS)
+export function formatDuration(totalSeconds: number): string {
+    if (totalSeconds <= 0) return "0:00";
+
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = Math.floor(totalSeconds % 60);
+
+    if (hours > 0) {
+        return `${hours}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    }
+    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+}
+
+// Legacy parseDuration for backward compatibility (returns minutes)
+export function parseDuration(isoDuration: string): number {
+    return parseDurationSeconds(isoDuration) / 60;
+}
+
+// Clean topic category URLs to readable names
+export function cleanTopicCategories(urls: string[]): string[] {
+    if (!urls || urls.length === 0) return [];
+    return urls.map(url => {
+        const match = url.match(/\/wiki\/(.+)$/);
+        if (match) {
+            return decodeURIComponent(match[1]).replace(/_/g, ' ');
+        }
+        return url;
+    });
 }
 
 // Extract video ID from various URL formats
@@ -917,6 +948,8 @@ export async function buildAnalyzedVideos(
             subscriber_count: channel.subscriberCount,
             publish_date: video.publishedAt,
             duration_minutes: parseDuration(video.duration),
+            duration_seconds: parseDurationSeconds(video.duration),
+            duration_formatted: formatDuration(parseDurationSeconds(video.duration)),
             made_for_kids: video.madeForKids,
             default_language: video.defaultLanguage,
             default_audio_language: video.defaultAudioLanguage,
@@ -924,8 +957,9 @@ export async function buildAnalyzedVideos(
             description: video.description,
             category_id: video.categoryId,
             topic_categories: video.topicCategories,
+            topic_categories_clean: cleanTopicCategories(video.topicCategories).join(' | ') || 'Uncategorized',
             thumbnails: video.thumbnails,
-            channel_keywords: channel.keywords,
+            channel_keywords: channel.keywords || '[No Keywords]',
             channel_description: channel.description,
             transcript_raw: "",
             transcript_language: "",

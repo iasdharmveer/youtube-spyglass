@@ -19,10 +19,12 @@
     "clsx": "^2.1.1",
     "lucide-react": "^0.556.0",
     "next": "16.0.7",
+    "p-retry": "^7.1.0",
     "react": "19.2.0",
     "react-dom": "19.2.0",
     "tailwind-merge": "^3.4.0",
     "youtube-transcript": "^1.2.1",
+    "youtube-transcript-api": "^3.0.6",
     "zustand": "^5.0.9"
   },
   "devDependencies": {

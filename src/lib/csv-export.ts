@@ -10,9 +10,9 @@ function escapeCSVField(value: unknown): string {
 
     let stringValue: string;
 
-    // If it's an array, join with semicolons
+    // If it's an array, join with semicolons (with fallback for empty arrays)
     if (Array.isArray(value)) {
-        stringValue = value.join("; ");
+        stringValue = value.length > 0 ? value.join("; ") : "[No Tags]";
     } else if (typeof value === "object") {
         // If it's an object (like thumbnails), stringify it
         stringValue = JSON.stringify(value);
@@ -48,7 +48,8 @@ const CSV_COLUMNS: { key: keyof AnalyzedVideo; header: string }[] = [
     { key: "comments_count", header: "Comments" },
     { key: "subscriber_count", header: "Subscribers" },
     { key: "publish_date", header: "Published Date" },
-    { key: "duration_minutes", header: "Duration (min)" },
+    { key: "duration_formatted", header: "Duration" },
+    { key: "duration_seconds", header: "Duration (sec)" },
     { key: "faceless_score", header: "Faceless Score" },
     { key: "faceless_confidence", header: "Faceless Confidence" },
     { key: "made_for_kids", header: "Made for Kids" },
@@ -57,7 +58,7 @@ const CSV_COLUMNS: { key: keyof AnalyzedVideo; header: string }[] = [
     { key: "tags", header: "Tags" },
     { key: "description", header: "Description" },
     { key: "channel_keywords", header: "Channel Keywords" },
-    { key: "topic_categories", header: "Topic Categories" },
+    { key: "topic_categories_clean", header: "Topic Categories" },
     { key: "transcript_raw", header: "Transcript" },
     { key: "transcript_language", header: "Transcript Language" },
 ];
